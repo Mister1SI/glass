@@ -17,8 +17,7 @@ _start:
 	mov rdi, [rsp + 8]
 	mov [argc], rdi
 
-	mov r10, 1
-	cmp r10, rdi
+	cmp rdi, 0
 	je print_help
 
 	; Get argv
