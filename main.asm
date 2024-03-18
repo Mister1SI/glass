@@ -1,14 +1,13 @@
 section .data
-	msg: db "Hello", 10
-	len_msg equ $ - msg
-
-	help: db "glass: file preprocessor", 10, \
-		`usage: don\'t use it\'s kinda bad`, 10
-	len_help equ $ - help
+	help: db "glass: file preprocessor", 11, \
+		`usage: don\'t use it\'s kinda bad`, 10, 0
+	string: db "Apple", 10, 0	
+	nl: db 10
 
 section .bss
-	argc: resb 4
-	argv: resb 8
+	argc: resq 1
+	argv: resq 1
+	dest: resq 1
 
 section .text
 global _start
@@ -18,24 +17,59 @@ _start:
 	mov rdi, [rsp + 8]
 	mov [argc], rdi
 
-	; Get argv
-	mov rsi, rsp
-	mov [argv], rsi
-	add rsi, 16		; Skip argc and argv[0]
-
-	cmp rdi, 1
+	mov r10, 1
+	cmp r10, rdi
 	je print_help
 
-	print_help: 
+	; Get argv
+	lea rsi, [rsp + 16]
+	mov [argv], rsi
+
+	mov rsi, [rsi]
+	call prints
+
 	mov rax, 1
 	mov rdi, 1
-	mov rsi, help
-	mov rdx, len_help
+	mov rsi, nl
+	mov rdx, 1
 	syscall
+	
+	mov rsi, string
+	call prints
+
+	mov rsi, string
+	mov rdi, dest
+	mov rcx, 7
+	cld
+	rep movsb
+
+	mov rsi, dest
+	call prints
+	
+	jmp exit
+	
+
+	print_help: 
+	mov rsi, help
+	call prints
 	jmp exit
 
 	exit:
 	mov rax, 60
-	mov rdi, 0
+	xor rdi, rdi
 	syscall
 
+
+prints:
+	prints_loop:
+	mov al, [rsi]
+	test al, al
+	jz prints_done
+	mov rdx, 1
+	mov rdi, 1
+	mov rax, 1
+	syscall
+	inc rsi
+	jmp prints_loop
+	prints_done:
+	ret

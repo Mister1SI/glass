@@ -5,7 +5,7 @@ for file in *.asm; do
 		nasm -o "$obj" -felf64 "$file"
 	fi
 done
-ld -o main *.o
+ld -o glass *.o
 rm *.o
-./main
+./glass "$@"
 
